@@ -99,6 +99,9 @@ def values(a: argparse.Namespace, site: dict) -> dict[str, str]:
         "CFF_TYPE": a.type,
         "TITLE": a.title,
         "DESCRIPTION": a.description,
+        # Quoted and escaped once, for quoted fields in YAML, TOML and JSON (JSON escapes are valid in all three).
+        "TITLE_Q": json.dumps(a.title, ensure_ascii=False),
+        "DESCRIPTION_Q": json.dumps(a.description, ensure_ascii=False),
         "CRATE": a.name,
         "CRATE_SNAKE": snake,
         "PY_MODULE": snake,

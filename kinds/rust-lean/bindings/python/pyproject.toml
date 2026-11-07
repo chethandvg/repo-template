@@ -5,7 +5,7 @@ build-backend = "maturin"
 [project]
 name = "{{CRATE}}"
 version = "0.1.0"
-description = "{{DESCRIPTION}}"
+description = {{DESCRIPTION_Q}}
 readme = "README.md"
 license = "{{LICENSE_SPDX}}"
 authors = [{ name = "{{AUTHOR}}" }]

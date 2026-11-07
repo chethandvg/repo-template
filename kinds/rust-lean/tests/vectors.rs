@@ -8,6 +8,8 @@ use golden_vectors::Outcome;
 use serde_json::Value;
 
 /// Maps each vector's `fn` name to this crate's implementation.
+/// Remove the `allow` once the first function is added.
+#[allow(clippy::match_single_binding)]
 fn dispatch(name: &str, args: &[Value]) -> Outcome {
     match name {
         // "function_name" => Outcome::from({{CRATE_SNAKE}}::function_name(golden_vectors::f64_arg(args, 0))),
