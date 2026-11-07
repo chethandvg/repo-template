@@ -40,7 +40,10 @@ ZENODO_LICENCES = {  # SPDX id -> Zenodo licence id
     "CC-BY-NC-4.0": "cc-by-nc-4.0",
     "CC-BY-4.0": "cc-by-4.0",
 }
-CONTENT_SCOPE = "articles, data, figures and audio"
+CONTENT_SCOPE = {  # what each content licence covers (project rule since 7 Nov 2026)
+    "CC-BY-NC-4.0": "articles, data and figures",
+    "CC-BY-4.0": "music, audio, video, scores and manifests",
+}
 PLACEHOLDER = re.compile(r"\{\{([A-Z_]+)\}\}")
 
 
@@ -65,7 +68,7 @@ def zenodo_json(v: dict[str, str], keywords: list[str]) -> str:
         "license": ZENODO_LICENCES[shown],
         "keywords": keywords,
         "notes": (
-            f"Dual licence: the {CONTENT_SCOPE} are under {NAMES[content]} (LICENSES/{content}.txt); "
+            f"Dual licence: the {CONTENT_SCOPE[content]} are under {NAMES[content]} (LICENSES/{content}.txt); "
             f"the code is under {NAMES[code]} (LICENSE). "
             f"Zenodo records one licence, so this {v['CFF_TYPE']} record shows the {which} licence."
         ),
@@ -82,7 +85,8 @@ def licence_section(code: str, content: str | None) -> str:
             "([LICENSE](LICENSE)). For commercial use, see [COMMERCIAL.md](COMMERCIAL.md)."
         )
     if content:
-        text += f" {CONTENT_SCOPE.capitalize()}: {NAMES[content]} ([LICENSES/{content}.txt](LICENSES/{content}.txt))."
+        scope, path = CONTENT_SCOPE[content].capitalize(), f"LICENSES/{content}.txt"
+        text += f" {scope}: {NAMES[content]} ([{path}]({path}))."
     return text + " Copyright notices are in [NOTICE](NOTICE)."
 
 
