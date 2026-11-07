@@ -1,6 +1,6 @@
 # {{TITLE}}: WebAssembly bindings
 
-WebAssembly build of [{{REPO}}](https://github.com/{{OWNER}}/{{REPO}}) for browsers and Node. Function names and results are identical to the Rust crate; the shared golden vectors prove it in CI.
+WebAssembly build of [{{REPO}}](https://github.com/{{OWNER}}/{{REPO}}) for browsers and Node. Function names and results are identical to the Rust crate; the shared golden vectors check it in CI.
 
 ```bash
 npm install
