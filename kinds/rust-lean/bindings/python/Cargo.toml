@@ -1,0 +1,17 @@
+[package]
+name = "{{CRATE}}-py"
+version = "0.1.0"
+edition = "2024"
+license = "{{LICENSE_SPDX}}"
+publish = false
+
+[lib]
+name = "{{CRATE_SNAKE}}"
+crate-type = ["cdylib"]
+
+[dependencies]
+{{CRATE_SNAKE}}_rs = { package = "{{CRATE}}", path = "../.." }
+pyo3 = { version = "0.30.1", features = ["abi3-py310"] }
+
+# A separate workspace, so the core crate's `cargo test` never links Python.
+[workspace]

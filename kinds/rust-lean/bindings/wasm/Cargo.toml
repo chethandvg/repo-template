@@ -1,0 +1,21 @@
+[package]
+name = "{{CRATE}}-wasm"
+version = "0.1.0"
+edition = "2024"
+license = "{{LICENSE_SPDX}}"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+{{CRATE_SNAKE}}_rs = { package = "{{CRATE}}", path = "../.." }
+# Pinned exactly: CI installs the wasm-bindgen CLI of this same version.
+wasm-bindgen = "=0.2.130"
+
+[profile.release]
+opt-level = "s"
+lto = true
+
+# A separate workspace, so the core crate's `cargo test` never builds WebAssembly.
+[workspace]

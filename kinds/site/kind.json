@@ -1,0 +1,4 @@
+{
+  "usage": "```bash\nnpm ci\nnpm run dev     # local preview\nnpm run build   # static site in dist/\n```",
+  "verified": "- **Build:** CI builds every page on every push and pull request, and deploys `main` to GitHub Pages.\n- **Links:** the site address comes from `site.json` in [{{OWNER}}/.github](https://github.com/{{OWNER}}/.github), and CI fails on links to an old address."
+}

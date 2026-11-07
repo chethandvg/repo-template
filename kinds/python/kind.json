@@ -1,0 +1,4 @@
+{
+  "usage": "```bash\npip install \"git+https://github.com/{{OWNER}}/{{REPO}}@v0.1.0\"\n```",
+  "verified": "- **Tests:** pytest on Linux and Windows, Python 3.10 to 3.14, plus Ruff lint and format checks.\n- **Claims:** every claim in [`claims.yaml`](claims.yaml) states its level and evidence, and CI re-checks cited sources weekly for retractions."
+}

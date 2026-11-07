@@ -1,0 +1,6 @@
+# Claims ledger for {{REPO}} (schema evidence-kernel/claims@1, https://github.com/{{OWNER}}/evidence-kernel).
+# Levels: P proved in Lean · V verified numerics · T tested · R referenced (DOI/PMID) · M model assumption.
+schema: evidence-kernel/claims@1
+repo: {{REPO}}
+prefix: {{CLAIM_PREFIX}}
+claims: []

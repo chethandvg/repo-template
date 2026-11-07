@@ -1,0 +1,5 @@
+{{TITLE}}
+Copyright {{YEAR}} {{AUTHOR}}
+{{REQUIRED_NOTICE}}
+This product includes work developed by {{AUTHOR}} (https://github.com/{{OWNER}}),
+part of {{SERIES}} ({{PROJECT_URL}}/).

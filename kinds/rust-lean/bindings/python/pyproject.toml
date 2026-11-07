@@ -1,0 +1,25 @@
+[build-system]
+requires = ["maturin>=1.16,<2"]
+build-backend = "maturin"
+
+[project]
+name = "{{CRATE}}"
+version = "0.1.0"
+description = "{{DESCRIPTION}}"
+readme = "README.md"
+license = "{{LICENSE_SPDX}}"
+authors = [{ name = "{{AUTHOR}}" }]
+requires-python = ">=3.10"
+keywords = {{KEYWORDS_JSON}}
+classifiers = [
+  "Programming Language :: Rust",
+  "Programming Language :: Python :: 3",
+  "Topic :: Scientific/Engineering :: Mathematics",
+]
+
+[project.urls]
+Homepage = "{{PROJECT_URL}}/repos/{{REPO}}/"
+Repository = "https://github.com/{{OWNER}}/{{REPO}}"
+
+[tool.maturin]
+module-name = "{{CRATE_SNAKE}}"

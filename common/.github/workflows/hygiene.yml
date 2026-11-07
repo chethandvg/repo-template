@@ -1,0 +1,19 @@
+name: hygiene
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "23 4 * * 1" # weekly, to catch newly retracted sources
+
+permissions:
+  contents: read
+
+jobs:
+  claims:
+    uses: {{OWNER}}/.github/.github/workflows/claims-verify.yml@v1
+  licences:
+    uses: {{OWNER}}/.github/.github/workflows/license-check.yml@v1
+  site-url:
+    uses: {{OWNER}}/.github/.github/workflows/site-url-check.yml@v1

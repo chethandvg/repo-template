@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite it using these metadata."
+type: software
+title: "{{TITLE}}"
+abstract: "{{DESCRIPTION}}"
+authors:
+  - given-names: "{{AUTHOR_GIVEN}}"
+    family-names: "{{AUTHOR_FAMILY}}"
+    alias: "{{OWNER}}"
+    orcid: "{{ORCID}}"
+repository-code: "https://github.com/{{OWNER}}/{{REPO}}"
+url: "{{PROJECT_URL}}/repos/{{REPO}}/"
+license:{{LICENSE_CFF}}
+version: 0.1.0
+date-released: "{{DATE}}"
+keywords:
+{{KEYWORDS_YAML}}
