@@ -1,0 +1,9 @@
+# Python style for scripts/, as in the template's python kind.
+line-length = 120
+target-version = "py310"
+
+[lint]
+select = ["E", "F", "W", "I", "UP", "B"]
+
+[format]
+line-ending = "lf"

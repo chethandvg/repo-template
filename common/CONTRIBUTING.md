@@ -19,4 +19,4 @@ The author keeps the right to offer this work under other licences in future. Ou
 - Every new claim goes in `claims.yaml` with its level: **P** (Lean proof), **V** (verified numerics), **T** (tests), **R** (reference with DOI or PMID) or **M** (stated assumption).
 - A referenced fact or a model assumption is never presented as proved.
 - Changes keep CI green: formatting, lints, tests on every platform, proofs and the claims check.
-- New dependencies must use a permissive licence (MIT, BSD, Apache-2.0, ISC or similar). GPL and AGPL dependencies can't be accepted.
+- New dependencies must use a permissive licence (MIT, BSD, Apache-2.0, ISC or similar). GPL and AGPL dependencies can't be accepted.{{ZENODO_STANDARD}}

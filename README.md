@@ -18,7 +18,7 @@ The script copies [`common/`](common) and one kind from [`kinds/`](kinds), fills
 | `python` | Tools and pure-Python packages | Hatchling package, pytest, Ruff |
 | `site` | Static sites | GitHub Pages deployment |
 
-Licences: `--licence apache` (default) or `polyform-nc`, and `--content-licence none`, `cc-by-nc` or `cc-by` for articles, data, figures and audio. The texts in [`licenses/`](licenses) are the official SPDX versions.
+Licences: `--licence apache` (default) or `polyform-nc`, and `--content-licence none`, `cc-by-nc` or `cc-by` for articles, data, figures and audio. The texts in [`licenses/`](licenses) are the official SPDX versions. A content licence also adds `.zenodo.json`, because Zenodo cannot load the two-licence `CITATION.cff`; it records the licence of what the record mainly is (the content licence for `--type dataset`, the code licence for software) and names both in its notes. `--type software` (default) or `dataset` sets `type` in `CITATION.cff` and, when there is one, `upload_type` in `.zenodo.json`.
 
 ## What every repository gets
 

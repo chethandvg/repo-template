@@ -10,6 +10,10 @@ It copies common/ and kinds/<kind>/ into <out>/<name>, fills every {{PLACEHOLDER
 (file contents and file names), adds the licence files, runs `git init`, and sets
 the local git author name. It refuses to overwrite an existing folder and fails
 if any placeholder is left unfilled.
+
+With a content licence, CITATION.cff lists two licences, which Zenodo's CITATION.cff
+importer cannot load (it reads `license` as one string). So the script also writes
+.zenodo.json, which Zenodo reads instead, from the same values.
 """
 
 import argparse
@@ -30,7 +34,43 @@ NAMES = {
     "CC-BY-NC-4.0": "CC BY-NC 4.0",
     "CC-BY-4.0": "CC BY 4.0",
 }
+ZENODO_LICENCES = {  # SPDX id -> Zenodo licence id
+    "Apache-2.0": "apache-2.0",
+    "PolyForm-Noncommercial-1.0.0": "polyform-noncommercial-1.0.0",
+    "CC-BY-NC-4.0": "cc-by-nc-4.0",
+    "CC-BY-4.0": "cc-by-4.0",
+}
+CONTENT_SCOPE = "articles, data, figures and audio"
 PLACEHOLDER = re.compile(r"\{\{([A-Z_]+)\}\}")
+
+
+def zenodo_json(v: dict[str, str], keywords: list[str]) -> str:
+    """.zenodo.json from the CITATION.cff values. Zenodo records one licence, so the record shows the
+    licence of what it mainly is (the content licence for a dataset, the code licence for software),
+    with a note naming both."""
+    code, content = v["LICENSE_SPDX"], v["CONTENT_SPDX"]
+    shown, which = (content, "content") if v["CFF_TYPE"] == "dataset" else (code, "code")
+    if shown not in ZENODO_LICENCES:
+        sys.exit(f"no Zenodo licence id for {shown}; add it to ZENODO_LICENCES in scripts/new_repo.py")
+    out = {
+        "upload_type": v["CFF_TYPE"],
+        "title": v["TITLE"],
+        "description": v["DESCRIPTION"],
+        "creators": [
+            {
+                "name": f"{v['AUTHOR_FAMILY']}, {v['AUTHOR_GIVEN']}",
+                "orcid": v["ORCID"].removeprefix("https://orcid.org/"),
+            }
+        ],
+        "license": ZENODO_LICENCES[shown],
+        "keywords": keywords,
+        "notes": (
+            f"Dual licence: the {CONTENT_SCOPE} are under {NAMES[content]} (LICENSES/{content}.txt); "
+            f"the code is under {NAMES[code]} (LICENSE). "
+            f"Zenodo records one licence, so this {v['CFF_TYPE']} record shows the {which} licence."
+        ),
+    }
+    return json.dumps(out, indent=2, ensure_ascii=False) + "\n"
 
 
 def licence_section(code: str, content: str | None) -> str:
@@ -42,19 +82,21 @@ def licence_section(code: str, content: str | None) -> str:
             "([LICENSE](LICENSE)). For commercial use, see [COMMERCIAL.md](COMMERCIAL.md)."
         )
     if content:
-        text += f" Articles, data, figures and audio: {NAMES[content]} ([LICENSES/{content}.txt](LICENSES/{content}.txt))."
+        text += f" {CONTENT_SCOPE.capitalize()}: {NAMES[content]} ([LICENSES/{content}.txt](LICENSES/{content}.txt))."
     return text + " Copyright notices are in [NOTICE](NOTICE)."
 
 
 def values(a: argparse.Namespace, site: dict) -> dict[str, str]:
     code, content = LICENCES[a.licence], CONTENT[a.content_licence]
     keywords = [k.strip() for k in a.keywords.split(",") if k.strip()]
+    cff_keywords = keywords or ["frequencies-of-life"]
     snake = a.name.replace("-", "_").replace(".", "_")
     given, _, family = site["author"].partition(" ")
     kind = json.loads((HERE / "kinds" / a.kind / "kind.json").read_text(encoding="utf-8"))
     today = datetime.date.today()
     v = {
         "REPO": a.name,
+        "CFF_TYPE": a.type,
         "TITLE": a.title,
         "DESCRIPTION": a.description,
         "CRATE": a.name,
@@ -65,6 +107,7 @@ def values(a: argparse.Namespace, site: dict) -> dict[str, str]:
         "CLAIM_PREFIX": a.claim_prefix,
         "LAYER": a.layer,
         "LICENSE_SPDX": code,
+        "CONTENT_SPDX": content or "",
         "LICENSE_BADGE": code.replace("-", "--"),
         "LICENSE_CFF": f" {code}" if not content else f"\n  - {code}\n  - {content}",
         "LICENCE_SECTION": licence_section(code, content),
@@ -83,10 +126,14 @@ def values(a: argparse.Namespace, site: dict) -> dict[str, str]:
         "SITE_URL": site["site_url"],
         "PROJECT_URL": site["site_url"] + site["project_path"],
         "SERIES": site["series"],
-        "KEYWORDS_YAML": "\n".join(f"  - {k}" for k in keywords) or "  - frequencies-of-life",
+        "KEYWORDS_YAML": "\n".join(f"  - {k}" for k in cff_keywords),
         "KEYWORDS_TOML": json.dumps(keywords[:5]),
         "KEYWORDS_JSON": json.dumps(keywords),
+        "ZENODO_STANDARD": (
+            "\n- Zenodo reads `.zenodo.json` instead of `CITATION.cff`, so keep the two in step." if content else ""
+        ),
     }
+    v["ZENODO_JSON"] = zenodo_json(v, cff_keywords) if content else ""
     v["USAGE"] = PLACEHOLDER.sub(lambda m: v[m.group(1)], kind["usage"])
     v["VERIFIED"] = PLACEHOLDER.sub(lambda m: v[m.group(1)], kind["verified"])
     v["EXTRA_BADGES"] = PLACEHOLDER.sub(lambda m: v[m.group(1)], kind.get("badges", ""))
@@ -114,6 +161,12 @@ def main() -> int:
     ap.add_argument("--claim-prefix", required=True)
     ap.add_argument("--licence", choices=LICENCES, default="apache")
     ap.add_argument("--content-licence", choices=CONTENT, default="none")
+    ap.add_argument(
+        "--type",
+        choices=["software", "dataset"],
+        default="software",
+        help="type in CITATION.cff and upload_type in .zenodo.json (default: software)",
+    )
     ap.add_argument("--keywords", default="", help="comma-separated; the first five also go to crates.io")
     ap.add_argument("--out", type=Path, required=True, help="parent folder for the new repo")
     ap.add_argument("--site-json", type=Path, default=HERE.parent / ".github" / "site.json")
@@ -128,13 +181,18 @@ def main() -> int:
     render(HERE / "common", dest, v)
     render(HERE / "kinds" / a.kind, dest, v)
     shutil.copyfile(HERE / "licenses" / f"{v['LICENSE_SPDX']}.txt", dest / "LICENSE")
-    if CONTENT[a.content_licence]:
+    if content := v["CONTENT_SPDX"]:
         (dest / "LICENSES").mkdir(exist_ok=True)
-        shutil.copyfile(HERE / "licenses" / f"{CONTENT[a.content_licence]}.txt", dest / "LICENSES" / f"{CONTENT[a.content_licence]}.txt")
+        shutil.copyfile(HERE / "licenses" / f"{content}.txt", dest / "LICENSES" / f"{content}.txt")
+        (dest / ".zenodo.json").write_text(v["ZENODO_JSON"], encoding="utf-8", newline="\n")
     if a.licence != "polyform-nc":
         (dest / "COMMERCIAL.md").unlink()
 
-    left = [str(p.relative_to(dest)) for p in dest.rglob("*") if p.is_file() and PLACEHOLDER.search(p.read_text(encoding="utf-8", errors="ignore"))]
+    left = [
+        str(p.relative_to(dest))
+        for p in dest.rglob("*")
+        if p.is_file() and PLACEHOLDER.search(p.read_text(encoding="utf-8", errors="ignore"))
+    ]
     if left:
         sys.exit(f"unfilled placeholders in: {', '.join(left)}")
 
